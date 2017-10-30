@@ -32,22 +32,33 @@ export class Tilemap {
     private setEvents() :void {
         let x: number, y: number, isMove: boolean;
 
-        this.node.addEventListener('mousedown', (e) => {
-            x = e.offsetX;
-            y = e.offsetY;
+        // this.node.addEventListener('mousedown', (e) => {
+        this.node.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            // x = e.offsetX;
+            // y = e.offsetY;
+            x = e.touches[0].pageX;
+            y = e.touches[0].pageY;
             isMove = true;
         });
 
-        this.node.addEventListener('mousemove', (e) => {
+        // this.node.addEventListener('mousemove', (e) => {
+        this.node.addEventListener('touchmove', (e) => {
+            e.preventDefault();
             if (isMove) {
-                this.camera.setPosition(e.offsetX - x, e.offsetY - y);
-                x = e.offsetX;
-                y = e.offsetY;
+                // this.camera.setPosition(e.offsetX - x, e.offsetY - y);
+                // x = e.offsetX;
+                // y = e.offsetY;
+                this.camera.setPosition(e.touches[0].pageX - x, e.touches[0].pageY - y);
+                x = e.touches[0].pageX;
+                y = e.touches[0].pageY;
                 this.draw();
             }
         });
 
-        document.body.addEventListener('mouseup', (e) => {
+        // document.body.addEventListener('mouseup', (e) => {
+        document.body.addEventListener('touchend', (e) => {
+            e.preventDefault();
             isMove = false;
         });
     }
@@ -57,20 +68,11 @@ export class Tilemap {
     }
 
     private draw () :void {
-        // this.tiles.forEach((row: Tile[]) => {
-        //     row.forEach((tile: Tile) => {
-        //         this.contex.drawImage(this.loader.image, tile.imageX, tile.imageY, tile.width, tile.height, tile.x * tile.width + this.camera.X, tile.y * tile.height + this.camera.Y, tile.width, tile.height);
-        //     });
-        // });
-
-
-
         let tiles = this.camera.getTiles();
-
-        this.contex.clearRect(0, 0, this.node.offsetWidth, this.node.offsetHeight);
+        // this.contex.clearRect(0, 0, this.node.offsetWidth, this.node.offsetHeight);
 
         tiles.forEach((tilePositions) => {
-            let tile = this.tiles[tilePositions.x][tilePositions.y];
+            let tile = this.tiles[tilePositions.y][tilePositions.x];
 
             this.contex.drawImage(
                 this.loader.image,
@@ -114,7 +116,8 @@ export class Tilemap {
 
     private getPositionPerNumber(n: number, tileset: any) :Array<number> {
         let rows = tileset.tilecount / tileset.columns;
-        return [n % tileset.columns, Math.floor(n / rows)];
+        return [(n - 1) % tileset.columns, Math.floor(n / rows)];
+        // return [Math.floor(n / rows), (n - 1) % tileset.columns];
     }
 
     private createTiles () {
@@ -135,7 +138,6 @@ export class Tilemap {
                 arr = [];
             }
         });
-
         this.draw();
     }
 }

@@ -9,6 +9,10 @@
         canvas {
             width: 200px;
             height: 200px;
+        }
+        .wrapper {
+            font-size: 0;
+            display: inline-block;
             border: 1px solid;
         }
     </style>
@@ -16,7 +20,9 @@
 </head>
 <body>
     <div style="height: 1000px"></div>
-    <canvas id="tilemap" width="200" height="200"></canvas>
+    <div class="wrapper">
+        <canvas id="tilemap" width="200" height="200"></canvas>
+    </div>
     <div style="height: 1000px"></div>
     <script>
         var t = new Tilemap.Tilemap('tilemap', '../test.json');

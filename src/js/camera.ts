@@ -29,7 +29,7 @@ export class Camera {
     }
 
     private getIndex(value: number, size: number) :number {
-        return Math.floor(Math.abs(value / size));
+        return Math.floor(Math.abs(value) / size);
     }
 
     public getTiles() :Array<Point> {
@@ -40,9 +40,11 @@ export class Camera {
         let indexY: number = this.getIndex(this.y * (-1), th);
         let startX = indexX * tw;
         let startY = indexY * th;
+        let normalizedX = Math.abs(this.x);
+        let normalizedY = Math.abs(this.y);
 
-        for (let _y = startY; _y < startY + this.cameraHeight; _y += th) {
-            for (let _x = startX; _x < startX + this.cameraWidth; _x += tw) {
+        for (let _y = startY; _y < normalizedY + this.cameraHeight; _y += th) {
+            for (let _x = startX; _x < normalizedX + this.cameraWidth; _x += tw) {
                 arr.push(new Point(this.getIndex(_x, tw), this.getIndex(_y, th)));
             }
         }
