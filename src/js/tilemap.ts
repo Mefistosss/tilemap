@@ -63,17 +63,14 @@ export class Tilemap {
         //     });
         // });
 
+
+
         let tiles = this.camera.getTiles();
 
         this.contex.clearRect(0, 0, this.node.offsetWidth, this.node.offsetHeight);
 
-        // console.log(this.camera.X, this.camera.Y);
-        
         tiles.forEach((tilePositions) => {
             let tile = this.tiles[tilePositions.x][tilePositions.y];
-
-            // console.log(tile.y * tile.height, tile.y * tile.height + this.camera.Y);
-console.log(tile.id);
 
             this.contex.drawImage(
                 this.loader.image,
@@ -87,8 +84,6 @@ console.log(tile.id);
                 tile.height
             );
         });
-        // console.log('=====================');
-        
     }
 
     private getConfig(url: string) :void {
@@ -117,6 +112,11 @@ console.log(tile.id);
         this.loader.load();
     }
 
+    private getPositionPerNumber(n: number, tileset: any) :Array<number> {
+        let rows = tileset.tilecount / tileset.columns;
+        return [n % tileset.columns, Math.floor(n / rows)];
+    }
+
     private createTiles () {
         let layer = this.mapConfig.layers[0];
         let tileset = this.mapConfig.tilesets[0];
@@ -126,16 +126,16 @@ console.log(tile.id);
         this.mapConfig.layers[0].data.forEach((t: number, i: number) => {
             let y = Math.floor(i / layer.height);
             let x = i % layer.width;
+            let pos = this.getPositionPerNumber(t, tileset);
 
-            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, t % layer.width * tileset.tilewidth, Math.floor(t / layer.height) * tileset.tileheight));
-            
+            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, pos[0] * tileset.tilewidth, pos[1] * tileset.tileheight));
+
             if (x === layer.width - 1) {
                 this.tiles.push(arr);
                 arr = [];
             }
         });
-        console.log(this.tiles);
-        
+
         this.draw();
     }
 }

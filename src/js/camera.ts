@@ -43,12 +43,9 @@ export class Camera {
 
         for (let _y = startY; _y < startY + this.cameraHeight; _y += th) {
             for (let _x = startX; _x < startX + this.cameraWidth; _x += tw) {
-                console.log(this.getIndex(_x, tw), this.getIndex(_y, th));
                 arr.push(new Point(this.getIndex(_x, tw), this.getIndex(_y, th)));
             }
         }
-console.log('----------------');
-
         return arr;
     }
 
@@ -77,7 +74,5 @@ console.log('----------------');
     public setPosition(x: number, y: number) :void {
         this.x = this.correctPosition(this.x + x, this.cameraWidth - this.mapWidth);
         this.y = this.correctPosition(this.y + y, this.cameraHeight - this.mapHeight);
-        console.log(this.x, this.y);
-        
     }
 }
