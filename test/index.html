@@ -26,6 +26,9 @@
     <div style="height: 1000px"></div>
     <script>
         var t = new Tilemap.Tilemap('tilemap', '../test.json');
+        t.clickEvent.subscribe((data) => {
+            console.log('click', data);
+        });
     </script>
 </body>
 </html>

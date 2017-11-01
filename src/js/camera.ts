@@ -77,4 +77,8 @@ export class Camera {
         this.x = this.correctPosition(this.x + x, this.cameraWidth - this.mapWidth);
         this.y = this.correctPosition(this.y + y, this.cameraHeight - this.mapHeight);
     }
+
+    public getIndexOfTile(x: number, y: number) :Point {
+        return new Point(this.getIndex(this.x * (-1) + x, this.tileWidth), this.getIndex(this.y * (-1) + y, this.tileHeight));
+    }
 }

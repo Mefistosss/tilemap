@@ -1,7 +1,7 @@
-import { Observable } from 'rxjs/Observable';
+// import { Observable } from 'rxjs/Observable';
 // import { Observable } from 'rxjs';
 import { ajax } from 'rxjs/observable/dom/ajax';
-// import { ajax } from 'rxjs/add/observable/dom/ajax';
+import { Subject } from 'rxjs/Subject';
 import { Tile } from './tile';
 import { ImageLoader } from './image-loader';
 import { Camera } from './camera';
@@ -16,6 +16,8 @@ export class Tilemap {
     private isMobile: boolean;
     private camera: Camera;
 
+    private click: Subject<any>;
+
     constructor (canvasId: string, pathToConfig: string) {
         this.node = <HTMLCanvasElement> document.getElementById(canvasId);
         this.tiles = [];
@@ -25,30 +27,34 @@ export class Tilemap {
             this.getConfig(pathToConfig);
         }
 
+        this.click = new Subject();
+
         this.isMobile = (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
-        this.setEvents();
+
+        if (this.isMobile) {
+            this.setMobileEvents();
+        } else {
+            this.setEvents();
+        }
     }
 
-    private setEvents() :void {
+    public get clickEvent() :Subject<any> {
+        return this.click;
+    }
+
+    private setMobileEvents() :void {
         let x: number, y: number, isMove: boolean;
 
-        // this.node.addEventListener('mousedown', (e) => {
         this.node.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            // x = e.offsetX;
-            // y = e.offsetY;
             x = e.touches[0].pageX;
             y = e.touches[0].pageY;
             isMove = true;
         });
 
-        // this.node.addEventListener('mousemove', (e) => {
         this.node.addEventListener('touchmove', (e) => {
-            e.preventDefault();
             if (isMove) {
-                // this.camera.setPosition(e.offsetX - x, e.offsetY - y);
-                // x = e.offsetX;
-                // y = e.offsetY;
+                e.preventDefault();
                 this.camera.setPosition(e.touches[0].pageX - x, e.touches[0].pageY - y);
                 x = e.touches[0].pageX;
                 y = e.touches[0].pageY;
@@ -56,16 +62,59 @@ export class Tilemap {
             }
         });
 
-        // document.body.addEventListener('mouseup', (e) => {
         document.body.addEventListener('touchend', (e) => {
             e.preventDefault();
             isMove = false;
         });
     }
 
-    public show() :void {
-        this.draw();
+    private setEvents() :void {
+        let x: number, y: number, isMove: boolean, moved = false;
+
+        // this.node.addEventListener('click', (e) => {
+        //     if (!isMove) {
+        //         e.preventDefault();
+        //         let point = this.camera.getIndexOfTile(e.offsetX, e.offsetY);
+        //         let tile = this.tiles[point.y][point.x];
+        //         // this.click.onNext('foo');
+        //         this.click.next(tile);
+        //     }
+        // });
+
+        this.node.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            x = e.offsetX;
+            y = e.offsetY;
+            isMove = true;
+        });
+
+        this.node.addEventListener('mousemove', (e) => {
+            if (isMove) {
+                moved = true;
+                e.preventDefault();
+                this.camera.setPosition(e.offsetX - x, e.offsetY - y);
+                x = e.offsetX;
+                y = e.offsetY;
+                this.draw();
+            }
+        });
+
+        document.body.addEventListener('mouseup', (e) => {
+            e.preventDefault();
+            if (!moved) {
+                let point = this.camera.getIndexOfTile(e.offsetX, e.offsetY);
+                let tile = this.tiles[point.y][point.x];
+                // this.click.onNext('foo');
+                this.click.next(tile);
+            }
+            moved = false;
+            isMove = false;
+        });
     }
+
+    // public show() :void {
+    //     this.draw();
+    // }
 
     private draw () :void {
         let tiles = this.camera.getTiles();
