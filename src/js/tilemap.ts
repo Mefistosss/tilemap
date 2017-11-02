@@ -116,7 +116,7 @@ export class Tilemap {
     //     this.draw();
     // }
 
-    private draw () :void {
+    private draw() :void {
         let tiles = this.camera.getTiles();
         // this.contex.clearRect(0, 0, this.node.offsetWidth, this.node.offsetHeight);
 
@@ -135,6 +135,33 @@ export class Tilemap {
                 tile.height
             );
         });
+
+        this.drawGrid(this.tiles[tiles[0].x][tiles[0].y]);
+    }
+
+    private drawGrid(tile: Tile) :void {
+        let startPoint, point,
+            tileset = this.mapConfig.tilesets[0];
+        
+        this.contex.beginPath();
+
+        startPoint = tile.x * tile.width + this.camera.X;
+        point = startPoint - tileset.tilewidth;
+        do {
+            point += tileset.tilewidth;
+            this.contex.moveTo(point - 0.5, 0 - 0.5);
+            this.contex.lineTo(point - 0.5, this.node.offsetWidth - 0.5);
+        } while(point < startPoint + this.node.offsetWidth)
+
+        startPoint = tile.y * tile.height + this.camera.Y
+        point = startPoint - tileset.tileheight;
+        do {
+            point += tileset.tileheight;
+            this.contex.moveTo(0 - 0.5, point - 0.5);
+            this.contex.lineTo(this.node.offsetHeight - 0.5, point - 0.5);
+        } while(point < startPoint + this.node.offsetWidth)
+
+        this.contex.stroke();
     }
 
     private getConfig(url: string) :void {
