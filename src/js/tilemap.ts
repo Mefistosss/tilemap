@@ -109,6 +109,7 @@ export class Tilemap {
 
     private draw() :void {
         let tiles = this.camera.getTiles();
+        let tileset = this.mapConfig.tilesets[0];
 
         // this.context.fillRect(0, 0, this.width, this.height);
 
@@ -116,6 +117,7 @@ export class Tilemap {
             let tile = this.tiles[tilePositions.y][tilePositions.x],
                 posX = tile.x * tile.width + this.camera.X,
                 posY = tile.y * tile.height + this.camera.Y;
+console.log(tile.imageX, tile.imageY, posX, posY);
 
             this.context.drawImage(
                 this.loader.image,
@@ -192,8 +194,9 @@ export class Tilemap {
     }
 
     private getPositionPerNumber(n: number, tileset: any) :Array<number> {
-        let rows = tileset.tilecount / tileset.columns;
-        return [(n - 1) % tileset.columns, Math.floor(n / rows)];
+        let rows = tileset.tilecount / tileset.columns - 1;
+        // return [(n - 1) % tileset.columns, Math.floor(n / rows)];
+        return [(n - 1) % tileset.columns, rows];
     }
 
     private createTiles () :void {
@@ -207,7 +210,9 @@ export class Tilemap {
             let x = i % layer.width;
             let pos = this.getPositionPerNumber(t, tileset);
 
-            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, pos[0] * tileset.tilewidth, pos[1] * tileset.tileheight));
+console.log(x, y, t, pos);
+
+            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, tileset.spacing + (pos[0] + tileset.margin) * tileset.tilewidth, tileset.spacing + (pos[1] + tileset.margin) * tileset.tileheight));
 
             if (x === layer.width - 1) {
                 this.tiles.push(arr);
@@ -220,10 +225,15 @@ export class Tilemap {
         this.getConfig(pathToConfig, (data: any) => {
             this.mapConfig = data;
             let tileset = this.mapConfig.tilesets[0];
+
+            if (!this.mapConfig.tilesets[0].columns) {
+                this.mapConfig.tilesets[0].columns = Math.floor((tileset.imagewidth - tileset.spacing) / (tileset.tilewidth + tileset.margin));
+            }
+
             let layer = this.mapConfig.layers[0];
             this.width = this.node.offsetWidth;
             this.height = this.node.offsetHeight;
-            this.camera = new Camera(this.width, this.height, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
+            this.camera = new Camera(this.width, this.height, (tileset.tilewidth + tileset.margin) * layer.width, (tileset.tileheight + tileset.margin) * layer.height, tileset.tilewidth, tileset.tileheight);
             this.camera.drawEvent.subscribe(() => {
                 this.draw();
             });

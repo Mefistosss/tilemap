@@ -25,7 +25,14 @@ export class Camera {
     private draw: Subject<any> = new Subject();
     private animationEnd: Subject<any> = new Subject();
 
-    constructor (cameraWidth: number, cameraHeight: number, mapWidth: number, mapHeight: number, tileWidth: number, tileHeight: number) {
+    constructor (
+        cameraWidth: number,
+        cameraHeight: number,
+        mapWidth: number,
+        mapHeight: number,
+        tileWidth: number,
+        tileHeight: number
+    ) {
         this.cameraWidth = cameraWidth;
         this.cameraHeight = cameraHeight;
         this.mapWidth = mapWidth;

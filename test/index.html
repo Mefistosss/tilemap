@@ -25,9 +25,10 @@
     </div>
     <div style="height: 1000px"></div>
     <script>
-        var t = new Tilemap.Tilemap('tilemap', '../test.json', {
+        var t = new Tilemap.Tilemap('tilemap', '../test2.json', {
             gridColor: '#e2e2e2',
-            numberOfTiles: true
+            grid: false
+            // numberOfTiles: true
         });
         t.clickEvent.subscribe((data) => {
             console.log('click', data);
