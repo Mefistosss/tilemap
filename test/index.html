@@ -6,9 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Tilemap</title>
     <style>
-        canvas {
+        #tilemap {
             width: 150px;
             height: 250px;
+        }
+        #tilemap2 {
+            width: 300px;
+            height: 300px;
         }
         .wrapper {
             font-size: 0;
@@ -23,9 +27,21 @@
     <div class="wrapper">
         <canvas id="tilemap" width="150" height="250"></canvas>
     </div>
+
+    <div class="wrapper">
+        <canvas id="tilemap2" width="300" height="300"></canvas>
+    </div>
     <div style="height: 1000px"></div>
     <script>
-        var t = new Tilemap.Tilemap('tilemap', '../test2.json', {
+        var t = new Tilemap.Tilemap('tilemap', '../test.json', {
+            gridColor: '#e2e2e2',
+            grid: false
+            // numberOfTiles: true
+        });
+        t.clickEvent.subscribe((data) => {
+            console.log('click', data);
+        });
+        var t = new Tilemap.Tilemap('tilemap2', '../test2.json', {
             gridColor: '#e2e2e2',
             grid: false
             // numberOfTiles: true

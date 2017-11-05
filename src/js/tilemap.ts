@@ -117,7 +117,7 @@ export class Tilemap {
             let tile = this.tiles[tilePositions.y][tilePositions.x],
                 posX = tile.x * tile.width + this.camera.X,
                 posY = tile.y * tile.height + this.camera.Y;
-console.log(tile.imageX, tile.imageY, posX, posY);
+// console.log(tile.imageX, tile.imageY, posX, posY);
 
             this.context.drawImage(
                 this.loader.image,
@@ -194,8 +194,7 @@ console.log(tile.imageX, tile.imageY, posX, posY);
     }
 
     private getPositionPerNumber(n: number, tileset: any) :Array<number> {
-        let rows = tileset.tilecount / tileset.columns - 1;
-        // return [(n - 1) % tileset.columns, Math.floor(n / rows)];
+        let rows = Math.floor(n / tileset.columns);
         return [(n - 1) % tileset.columns, rows];
     }
 
@@ -209,10 +208,10 @@ console.log(tile.imageX, tile.imageY, posX, posY);
             let y = Math.floor(i / layer.height);
             let x = i % layer.width;
             let pos = this.getPositionPerNumber(t, tileset);
+            let imgPosX = tileset.spacing + pos[0] * (tileset.tilewidth + tileset.margin);
+            let imgPosY = tileset.spacing + pos[1] * (tileset.tileheight + tileset.margin);
 
-console.log(x, y, t, pos);
-
-            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, tileset.spacing + (pos[0] + tileset.margin) * tileset.tilewidth, tileset.spacing + (pos[1] + tileset.margin) * tileset.tileheight));
+            arr.push(new Tile(t, tileset.tilewidth, tileset.tileheight, x, y, imgPosX, imgPosY));
 
             if (x === layer.width - 1) {
                 this.tiles.push(arr);
