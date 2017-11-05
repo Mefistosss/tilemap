@@ -10,180 +10,181 @@ export class Tilemap {
     private node: HTMLCanvasElement;
     private mapConfig: any;
     private loader: ImageLoader;
-    private tiles: Array<Tile[]>;
-
-    private contex: CanvasRenderingContext2D;
+    private tiles: Array<Tile[]> = [];
+    private width: number = 0;
+    private height: number = 0;
+    private isReady: boolean = false;
+    private context: CanvasRenderingContext2D;
     private isMobile: boolean;
     private camera: Camera;
+    private click: Subject<any> = new Subject();
+    private showTiles: Subject<any> = new Subject();
 
-    private click: Subject<any>;
+    private options: any = {
+        grid: true,
+        numberOfTiles: false,
+        gridColor: 'black'
+        // additionalImages:
+    };
 
-    constructor (canvasId: string, pathToConfig: string) {
+    constructor (canvasId: string, pathToConfig: string, options: any) {
         this.node = <HTMLCanvasElement> document.getElementById(canvasId);
-        this.tiles = [];
-
-        this.contex = this.node.getContext('2d');
-        if (this.contex) {
-            this.getConfig(pathToConfig);
-        }
-
-        this.click = new Subject();
+        this.options = Object.assign(this.options, options);
 
         this.isMobile = (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
 
-        if (this.isMobile) {
-            this.setMobileEvents();
-        } else {
-            this.setEvents();
+        this.context = this.node.getContext('2d');
+        if (this.context) {
+            this.init(pathToConfig);
         }
     }
 
-    public get clickEvent() :Subject<any> {
-        return this.click;
-    }
-
-    private setMobileEvents() :void {
-        let x: number, y: number, isMove: boolean;
-
-        this.node.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            x = e.touches[0].pageX;
-            y = e.touches[0].pageY;
-            isMove = true;
-        });
-
-        this.node.addEventListener('touchmove', (e) => {
-            if (isMove) {
-                e.preventDefault();
-                this.camera.setPosition(e.touches[0].pageX - x, e.touches[0].pageY - y);
-                x = e.touches[0].pageX;
-                y = e.touches[0].pageY;
-                this.draw();
-            }
-        });
-
-        document.body.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isMove = false;
-        });
-    }
-
     private setEvents() :void {
-        let x: number, y: number, isMove: boolean, moved = false;
+        let x: number, y: number, isMove: boolean, moved: boolean = true;;
 
-        // this.node.addEventListener('click', (e) => {
-        //     if (!isMove) {
-        //         e.preventDefault();
-        //         let point = this.camera.getIndexOfTile(e.offsetX, e.offsetY);
-        //         let tile = this.tiles[point.y][point.x];
-        //         // this.click.onNext('foo');
-        //         this.click.next(tile);
-        //     }
-        // });
-
-        this.node.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            x = e.offsetX;
-            y = e.offsetY;
+        let start = (_x: number, _y: number) => {
+            x = _x;
+            y = _y;
             isMove = true;
-        });
+        };
 
-        this.node.addEventListener('mousemove', (e) => {
+        let move = (_x: number, _y: number) => {
             if (isMove) {
                 moved = true;
-                e.preventDefault();
-                this.camera.setPosition(e.offsetX - x, e.offsetY - y);
-                x = e.offsetX;
-                y = e.offsetY;
-                this.draw();
+                this.camera.setPosition(_x - x, _y - y);
+                x = _x;
+                y = _y;
+                // this.draw();
             }
-        });
+        };
 
-        document.body.addEventListener('mouseup', (e) => {
-            e.preventDefault();
+        let end = (_x: number, _y: number) => {
             if (!moved) {
-                let point = this.camera.getIndexOfTile(e.offsetX, e.offsetY);
+                let point = this.camera.getIndexOfTile(x, y);
                 let tile = this.tiles[point.y][point.x];
                 // this.click.onNext('foo');
                 this.click.next(tile);
             }
             moved = false;
             isMove = false;
-        });
-    }
+        };
 
-    // public show() :void {
-    //     this.draw();
-    // }
+        if (this.isMobile) {
+            this.node.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                start(e.touches[0].pageX, e.touches[0].pageY);
+            });
+
+            this.node.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                move(e.touches[0].pageX, e.touches[0].pageY);
+            });
+
+            this.node.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                end(e.touches[0].pageX, e.touches[0].pageY);
+            });
+
+            document.body.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                end(e.touches[0].pageX, e.touches[0].pageY);
+            });
+        } else {
+            this.node.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                start(e.offsetX, e.offsetY);
+            });
+
+            this.node.addEventListener('mousemove', (e) => {
+                e.preventDefault();
+                move(e.offsetX, e.offsetY);
+            });
+
+            document.body.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                end(e.offsetX, e.offsetY);
+            });
+        }
+    }
 
     private draw() :void {
         let tiles = this.camera.getTiles();
-        // this.contex.clearRect(0, 0, this.node.offsetWidth, this.node.offsetHeight);
+
+        // this.context.fillRect(0, 0, this.width, this.height);
 
         tiles.forEach((tilePositions) => {
-            let tile = this.tiles[tilePositions.y][tilePositions.x];
+            let tile = this.tiles[tilePositions.y][tilePositions.x],
+                posX = tile.x * tile.width + this.camera.X,
+                posY = tile.y * tile.height + this.camera.Y;
 
-            this.contex.drawImage(
+            this.context.drawImage(
                 this.loader.image,
                 tile.imageX,
                 tile.imageY,
                 tile.width,
                 tile.height,
-                tile.x * tile.width + this.camera.X,
-                tile.y * tile.height + this.camera.Y,
+                posX,
+                posY,
                 tile.width,
                 tile.height
             );
+
+            if (this.options.numberOfTiles) {
+                // this.context.fillStyle = this.options.gridColor;
+                this.context.textAlign = "start";
+                this.context.textBaseline = "top";
+                this.context.font = "12px Arial";
+                this.context.fillText(tile.ID + '', posX + 1, posY + 1);
+            }
         });
 
-        this.drawGrid(this.tiles[tiles[0].x][tiles[0].y]);
+        if (this.options.grid) {
+            this.drawGrid(this.tiles[tiles[0].x][tiles[0].y]);
+        }
     }
 
     private drawGrid(tile: Tile) :void {
         let startPoint, point,
-            tileset = this.mapConfig.tilesets[0];
+            tileset = this.mapConfig.tilesets[0],
+            width = this.width,
+            height = this.height;
         
-        this.contex.beginPath();
+        this.context.beginPath();
 
-        startPoint = tile.x * tile.width + this.camera.X;
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = this.options.gridColor;
+
+        startPoint = tile.y * tile.width + this.camera.X;
         point = startPoint - tileset.tilewidth;
         do {
             point += tileset.tilewidth;
-            this.contex.moveTo(point - 0.5, 0 - 0.5);
-            this.contex.lineTo(point - 0.5, this.node.offsetWidth - 0.5);
-        } while(point < startPoint + this.node.offsetWidth)
+            this.context.moveTo(point - 0.5, 0);
+            this.context.lineTo(point - 0.5, height);
+        } while(point < startPoint + width)
 
-        startPoint = tile.y * tile.height + this.camera.Y
+        startPoint = tile.x * tile.height + this.camera.Y
         point = startPoint - tileset.tileheight;
         do {
             point += tileset.tileheight;
-            this.contex.moveTo(0 - 0.5, point - 0.5);
-            this.contex.lineTo(this.node.offsetHeight - 0.5, point - 0.5);
-        } while(point < startPoint + this.node.offsetWidth)
+            this.context.moveTo(0, point - 0.5);
+            this.context.lineTo(width, point - 0.5);
+        } while(point < startPoint + height)
 
-        this.contex.stroke();
+        this.context.stroke();
     }
 
-    private getConfig(url: string) :void {
+    private getConfig(url: string, callback: Function) :void {
         ajax.getJSON(url)
         .subscribe(
-            (data) => {
-                this.mapConfig = data;
-                let tileset = this.mapConfig.tilesets[0];
-                let layer = this.mapConfig.layers[0];
-                this.camera = new Camera(this.node.offsetWidth, this.node.offsetHeight, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
-                this.loadImage();
-            },
-            (err) => {
-                // Log the error
-            }
+            (data) => { callback(data); },
+            (err) => { console.log('Can not load config'); }
         );
     }
 
-    private loadImage () :void {
+    private loadImage (callback: Function) :void {
         this.loader = new ImageLoader (this.mapConfig.tilesets[0].image, (err: any, v: any) => {
             if (!err) {
-                this.createTiles();
+                callback();
             }
         });
 
@@ -193,10 +194,9 @@ export class Tilemap {
     private getPositionPerNumber(n: number, tileset: any) :Array<number> {
         let rows = tileset.tilecount / tileset.columns;
         return [(n - 1) % tileset.columns, Math.floor(n / rows)];
-        // return [Math.floor(n / rows), (n - 1) % tileset.columns];
     }
 
-    private createTiles () {
+    private createTiles () :void {
         let layer = this.mapConfig.layers[0];
         let tileset = this.mapConfig.tilesets[0];
         let tileCount = tileset.tilecount;
@@ -214,6 +214,46 @@ export class Tilemap {
                 arr = [];
             }
         });
-        this.draw();
+    }
+
+    private init(pathToConfig: string) :void {
+        this.getConfig(pathToConfig, (data: any) => {
+            this.mapConfig = data;
+            let tileset = this.mapConfig.tilesets[0];
+            let layer = this.mapConfig.layers[0];
+            this.width = this.node.offsetWidth;
+            this.height = this.node.offsetHeight;
+            this.camera = new Camera(this.width, this.height, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
+            this.camera.drawEvent.subscribe(() => {
+                this.draw();
+            });
+            this.camera.animationEndEvent.subscribe(() => {
+                console.log('end');
+            });
+            this.loadImage(() => {
+                this.createTiles();
+                this.setEvents();
+                this.draw();
+                this.isReady = true;
+            });
+        });
+    }
+
+    public get clickEvent() :Subject<any> {
+        return this.click;
+    }
+
+    public get showTilesEvent() :Subject<any> {
+        return this.showTiles;
+    }
+
+    public moveTo(indexX: number, indexY: number) :void {
+
+    }
+
+    public resize () :void {
+        this.width = this.node.offsetWidth;
+        this.height = this.node.offsetHeight;
+        this.camera.resize(this.width, this.height);
     }
 }

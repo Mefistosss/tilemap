@@ -1,5 +1,5 @@
 export class Tile {
-    public id: number;
+    private id: number;
     private _x: number;
     private _y: number;
     private _width: number;
@@ -17,6 +17,10 @@ export class Tile {
 
         this._imagePositionX = imagePositionX;
         this._imagePositionY = imagePositionY;
+    }
+
+    public get ID() :number {
+        return this.id;
     }
 
     public get x() :number {

@@ -7,8 +7,8 @@
     <title>Tilemap</title>
     <style>
         canvas {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 250px;
         }
         .wrapper {
             font-size: 0;
@@ -21,11 +21,14 @@
 <body>
     <div style="height: 1000px"></div>
     <div class="wrapper">
-        <canvas id="tilemap" width="200" height="200"></canvas>
+        <canvas id="tilemap" width="150" height="250"></canvas>
     </div>
     <div style="height: 1000px"></div>
     <script>
-        var t = new Tilemap.Tilemap('tilemap', '../test.json');
+        var t = new Tilemap.Tilemap('tilemap', '../test.json', {
+            gridColor: '#e2e2e2',
+            numberOfTiles: true
+        });
         t.clickEvent.subscribe((data) => {
             console.log('click', data);
         });
