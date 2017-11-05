@@ -54,13 +54,12 @@ export class Tilemap {
                 this.camera.setPosition(_x - x, _y - y);
                 x = _x;
                 y = _y;
-                // this.draw();
             }
         };
 
         let end = (_x: number, _y: number) => {
-            if (!moved) {
-                let point = this.camera.getIndexOfTile(x, y);
+            if (isMove && !moved) {
+                let point = this.camera.getIndexOfTile(_x, _y);
                 let tile = this.tiles[point.y][point.x];
                 // this.click.onNext('foo');
                 this.click.next(tile);
@@ -109,15 +108,13 @@ export class Tilemap {
 
     private draw() :void {
         let tiles = this.camera.getTiles();
-        let tileset = this.mapConfig.tilesets[0];
 
-        // this.context.fillRect(0, 0, this.width, this.height);
+        this.context.fillRect(0, 0, this.width, this.height);
 
         tiles.forEach((tilePositions) => {
             let tile = this.tiles[tilePositions.y][tilePositions.x],
                 posX = tile.x * tile.width + this.camera.X,
                 posY = tile.y * tile.height + this.camera.Y;
-// console.log(tile.imageX, tile.imageY, posX, posY);
 
             this.context.drawImage(
                 this.loader.image,

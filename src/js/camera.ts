@@ -24,6 +24,7 @@ export class Camera {
     private isMoving: boolean = false;
     private draw: Subject<any> = new Subject();
     private animationEnd: Subject<any> = new Subject();
+    private step: number = 0.4;
 
     constructor (
         cameraWidth: number,
@@ -87,12 +88,10 @@ export class Camera {
     }
 
     private animation() :void {
-        let step = 0.4;
-
         this.isMoving = true;
 
-        let dx = (this.x - this.dx) * step;
-        let dy = (this.y - this.dy) * step;
+        let dx = (this.x - this.dx) * this.step;
+        let dy = (this.y - this.dy) * this.step;
 
         this.dx += dx;
         this.dy += dy;
