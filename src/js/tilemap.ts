@@ -19,12 +19,13 @@ export class Tilemap {
     private camera: Camera;
     private click: Subject<any> = new Subject();
     private showTiles: Subject<any> = new Subject();
+    private additionalImages: Array<ImageLoader> = []
 
     private options: any = {
         grid: true,
         numberOfTiles: false,
-        gridColor: 'black'
-        // additionalImages:
+        gridColor: 'black',
+        additionalImages: []
     };
 
     constructor (canvasId: string, pathToConfig: string, options: any) {
@@ -46,6 +47,7 @@ export class Tilemap {
             x = _x;
             y = _y;
             isMove = true;
+            this.camera.stop();
         };
 
         let move = (_x: number, _y: number) => {
@@ -128,6 +130,23 @@ export class Tilemap {
                 tile.height
             );
 
+            let additionalImages = tile.getImages();
+            if (additionalImages) {
+                additionalImages.forEach((image) => {
+                    this.context.drawImage(
+                        image,
+                        0,
+                        0,
+                        tile.width,
+                        tile.height,
+                        posX,
+                        posY,
+                        tile.width,
+                        tile.height
+                    );
+                });
+            }
+
             if (this.options.numberOfTiles) {
                 // this.context.fillStyle = this.options.gridColor;
                 this.context.textAlign = "start";
@@ -181,11 +200,32 @@ export class Tilemap {
     }
 
     private loadImage (callback: Function) :void {
-        this.loader = new ImageLoader (this.mapConfig.tilesets[0].image, (err: any, v: any) => {
+        let images = this.options.additionalImages.length + 1,
+            currentLoadedImages = 0;
+
+        this.loader = new ImageLoader(this.mapConfig.tilesets[0].image, (err: any, v: any) => {
             if (!err) {
-                callback();
+                currentLoadedImages += 1;
+                if (images === currentLoadedImages) {
+                    callback();
+                }
             }
         });
+
+        if (this.options.additionalImages.length) {
+            this.options.additionalImages.forEach((src: string) => {
+                let loader = new ImageLoader(src, (err: any, v: any) => {
+                    if (!err) {
+                        currentLoadedImages += 1;
+                        if (images === currentLoadedImages) {
+                            callback();
+                        }
+                    }
+                });
+                loader.load();
+                this.additionalImages.push(loader);
+            });
+        }
 
         this.loader.load();
     }
@@ -235,6 +275,8 @@ export class Tilemap {
             });
             this.camera.animationEndEvent.subscribe(() => {
                 console.log('end');
+                // TODO change status
+                this.showTiles.next(this.camera.getTiles());
             });
             this.loadImage(() => {
                 this.createTiles();
@@ -255,6 +297,12 @@ export class Tilemap {
 
     public moveTo(indexX: number, indexY: number) :void {
 
+    }
+
+    public setLayerToTile(x: number, y: number, additionalImage: number) :void {
+        let tile = this.tiles[y][x];
+        tile.addImage(this.additionalImages[additionalImage].image);
+        this.draw();
     }
 
     public resize () :void {

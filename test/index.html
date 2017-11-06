@@ -33,22 +33,59 @@
     </div>
     <div style="height: 1000px"></div>
     <script>
+        let mock = [];
+        for (let i = 0; i < 100; i++) {
+            let arr = [];
+            for (let j = 0; j < 100; j++) {
+                arr.push(0);
+            }
+            mock.push(arr);
+        }
+
+        let q = 500;
+        while (q > 0) {
+            q -= 1;
+            let x = Math.floor(Math.random() * 99);
+            let y = Math.floor(Math.random() * 99);
+            mock[y][x] = 1;
+        }
+
         var t = new Tilemap.Tilemap('tilemap', '../test.json', {
             gridColor: '#e2e2e2',
-            grid: false
+            grid: false,
             // numberOfTiles: true
+            additionalImages: ['./tile.jpg']
         });
         t.clickEvent.subscribe((data) => {
             console.log('click', data);
         });
         var t = new Tilemap.Tilemap('tilemap2', '../test2.json', {
             gridColor: '#e2e2e2',
-            grid: false
+            grid: true,
+            additionalImages: ['./2/32х32.gif']
             // numberOfTiles: true
         });
         t.clickEvent.subscribe((data) => {
             console.log('click', data);
         });
+        t.showTilesEvent.subscribe((data) => {
+            // data.forEach((point) => {
+            //     if (mock[point.y][point.x]) {
+            //         t.setLayerToTile(point.x, point.y, 0);
+            //     }
+            // });
+            set(data);
+        });
+        function set(data) {
+            let d = data;
+            setTimeout(() => {
+                d.forEach((point) => {
+                    if (mock[point.y][point.x]) {
+                        t.setLayerToTile(point.x, point.y, 0);
+                    }
+                });
+            }, 2000);
+        }
     </script>
 </body>
 </html>
