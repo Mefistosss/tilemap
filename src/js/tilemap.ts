@@ -229,7 +229,7 @@ export class Tilemap {
             let layer = this.mapConfig.layers[0];
             this.width = this.node.offsetWidth;
             this.height = this.node.offsetHeight;
-            this.camera = new Camera(this.width, this.height, (tileset.tilewidth + tileset.margin) * layer.width, (tileset.tileheight + tileset.margin) * layer.height, tileset.tilewidth, tileset.tileheight);
+            this.camera = new Camera(this.width, this.height, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
             this.camera.drawEvent.subscribe(() => {
                 this.draw();
             });
