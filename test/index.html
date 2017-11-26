@@ -69,20 +69,18 @@
             console.log('click', data);
         });
         t.showTilesEvent.subscribe((data) => {
-            // data.forEach((point) => {
-            //     if (mock[point.y][point.x]) {
-            //         t.setLayerToTile(point.x, point.y, 0);
-            //     }
-            // });
             set(data);
         });
         function set(data) {
             let d = data;
             setTimeout(() => {
                 d.forEach((point) => {
-                    if (mock[point.y][point.x]) {
-                        t.setLayerToTile(point.x, point.y, 0);
-                    }
+                    t.setLayerToTile({
+                        empty: !mock[point.y][point.x],
+                        x: point.x,
+                        y: point.y,
+                        additionalImage: 0
+                    });
                 });
             }, 2000);
         }

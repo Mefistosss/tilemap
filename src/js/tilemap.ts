@@ -274,9 +274,7 @@ export class Tilemap {
                 this.draw();
             });
             this.camera.animationEndEvent.subscribe(() => {
-                console.log('end');
-                // TODO change status
-                this.showTiles.next(this.camera.getTiles());
+                this.showTiles.next(this.tilesFilter(this.camera.getTiles()));
             });
             this.loadImage(() => {
                 this.createTiles();
@@ -285,6 +283,20 @@ export class Tilemap {
                 this.isReady = true;
             });
         });
+    }
+
+    private tilesFilter (tiles: any) :Array<any> {
+        let arr: any = [];
+
+        tiles.forEach((point: any) => {
+            let tile = this.tiles[point.y][point.x];
+            if (tile.Status === 0) {
+                tile.setRequestingStatus();
+                arr.push(point);
+            }
+        });
+
+        return arr;
     }
 
     public get clickEvent() :Subject<any> {
@@ -299,10 +311,13 @@ export class Tilemap {
 
     }
 
-    public setLayerToTile(x: number, y: number, additionalImage: number) :void {
-        let tile = this.tiles[y][x];
-        tile.addImage(this.additionalImages[additionalImage].image);
-        this.draw();
+    public setLayerToTile(options: any) :void {
+        let tile = this.tiles[options.y][options.x];
+        tile.setRequestedStatus();
+        if (!options.empty) {
+            tile.addImage(this.additionalImages[options.additionalImage].image);
+            this.draw();
+        }
     }
 
     public resize () :void {
