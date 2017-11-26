@@ -24,12 +24,17 @@
 </head>
 <body>
     <div style="height: 1000px"></div>
-    <div class="wrapper">
+    <!-- <div class="wrapper">
         <canvas id="tilemap" width="150" height="250"></canvas>
-    </div>
+    </div> -->
 
     <div class="wrapper">
         <canvas id="tilemap2" width="300" height="300"></canvas>
+    </div>
+    <div>
+        <input id="x" type="number" min="0" value="20">
+        <input id="y" type="number" min="0" value="20">
+        <button id="move">Move</button>
     </div>
     <div style="height: 1000px"></div>
     <script>
@@ -50,19 +55,20 @@
             mock[y][x] = 1;
         }
 
-        var t = new Tilemap.Tilemap('tilemap', '../test.json', {
-            gridColor: '#e2e2e2',
-            grid: false,
-            // numberOfTiles: true
-            additionalImages: ['./tile.jpg']
-        });
-        t.clickEvent.subscribe((data) => {
-            console.log('click', data);
-        });
+        // var t = new Tilemap.Tilemap('tilemap', '../test.json', {
+        //     gridColor: '#e2e2e2',
+        //     grid: false,
+        //     // numberOfTiles: true
+        //     additionalImages: ['./tile.jpg']
+        // });
+        // t.clickEvent.subscribe((data) => {
+        //     console.log('click', data);
+        // });
         var t = new Tilemap.Tilemap('tilemap2', '../test2.json', {
             gridColor: '#e2e2e2',
             grid: true,
-            additionalImages: ['./2/32х32.gif']
+            additionalImages: ['./2/32х32.gif'],
+            indexOfTiles: true
             // numberOfTiles: true
         });
         t.clickEvent.subscribe((data) => {
@@ -84,6 +90,16 @@
                 });
             }, 2000);
         }
+
+        document.getElementById('move').addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var x = document.getElementById('x');
+            var y = document.getElementById('y');
+
+            console.log(x.value, y.value);
+            t.moveTo(parseInt(x.value), parseInt(y.value));
+        });
     </script>
 </body>
 </html>

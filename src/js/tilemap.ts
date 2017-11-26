@@ -19,11 +19,13 @@ export class Tilemap {
     private camera: Camera;
     private click: Subject<any> = new Subject();
     private showTiles: Subject<any> = new Subject();
-    private additionalImages: Array<ImageLoader> = []
+    private additionalImages: Array<ImageLoader> = [];
+    private animationTimer: any = null;
 
     private options: any = {
         grid: true,
         numberOfTiles: false,
+        indexOfTiles: false,
         gridColor: 'black',
         additionalImages: []
     };
@@ -153,6 +155,14 @@ export class Tilemap {
                 this.context.textBaseline = "top";
                 this.context.font = "12px Arial";
                 this.context.fillText(tile.ID + '', posX + 1, posY + 1);
+            }
+
+            if (this.options.indexOfTiles) {
+                // this.context.fillStyle = this.options.gridColor;
+                this.context.textAlign = "start";
+                this.context.textBaseline = "bottom";
+                this.context.font = "12px Arial";
+                this.context.fillText(tile.x + ' ' + tile.y, posX + 1, posY + 32);
             }
         });
 
@@ -308,7 +318,7 @@ export class Tilemap {
     }
 
     public moveTo(indexX: number, indexY: number) :void {
-
+        this.camera.move(indexX, indexY);
     }
 
     public setLayerToTile(options: any) :void {
