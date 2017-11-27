@@ -17,10 +17,13 @@ export class Tilemap {
     private context: CanvasRenderingContext2D;
     private isMobile: boolean;
     private camera: Camera;
+    private additionalImages: Array<ImageLoader> = [];
+    private startX: number = 0;
+    private startY: number = 0;
+
+    private ready: Subject<any> = new Subject();
     private click: Subject<any> = new Subject();
     private showTiles: Subject<any> = new Subject();
-    private additionalImages: Array<ImageLoader> = [];
-    private animationTimer: any = null;
 
     private options: any = {
         grid: true,
@@ -280,6 +283,7 @@ export class Tilemap {
             this.width = this.node.offsetWidth;
             this.height = this.node.offsetHeight;
             this.camera = new Camera(this.width, this.height, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
+            this.camera.setStartPosition(this.startX, this.startY);
             this.camera.drawEvent.subscribe(() => {
                 this.draw();
             });
@@ -291,6 +295,7 @@ export class Tilemap {
                 this.setEvents();
                 this.draw();
                 this.isReady = true;
+                this.ready.next();
             });
         });
     }
@@ -309,6 +314,13 @@ export class Tilemap {
         return arr;
     }
 
+    public get readyEvent() :Subject<any> {
+        if (this.isReady) {
+            setTimeout(() => { this.ready.next(); }, 50);
+        }
+        return this.ready;
+    }
+
     public get clickEvent() :Subject<any> {
         return this.click;
     }
@@ -318,7 +330,15 @@ export class Tilemap {
     }
 
     public moveTo(indexX: number, indexY: number) :void {
-        this.camera.move(indexX, indexY);
+        if (this.isReady) {
+            this.camera.move(indexX, indexY);
+        } else {
+            this.startX = indexX;
+            this.startY = indexY;
+            if (this.camera) {
+                this.camera.setStartPosition(this.startX, this.startY);
+            }
+        }
     }
 
     public setLayerToTile(options: any) :void {

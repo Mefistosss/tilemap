@@ -127,11 +127,20 @@ export class Camera {
     }
 
     public move(indexX: number, indexY: number) :void {
+        this.setStartPosition(indexX, indexY, true);
+        if (!this.isMoving) { this.animation(); }
+    }
+
+    public setStartPosition(indexX: number, indexY: number, animation: boolean = false) :void {
         let x = (0 - indexX * this.tileWidth) + this.cameraWidth / 2 - this.tileWidth / 2;
         let y = (0 - indexY * this.tileHeight) + this.cameraHeight / 2 - this.tileHeight / 2;
         this.x = this.correctPosition(x, this.cameraWidth - this.mapWidth);
         this.y = this.correctPosition(y, this.cameraHeight - this.mapHeight);
-        if (!this.isMoving) { this.animation(); }
+
+        if (!animation) {
+            this.dx = this.x;
+            this.dy = this.y;
+        }
     }
 
     public getIndexOfTile(x: number, y: number) :Point {
