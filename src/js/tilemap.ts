@@ -24,6 +24,7 @@ export class Tilemap {
     private ready: Subject<any> = new Subject();
     private click: Subject<any> = new Subject();
     private showTiles: Subject<any> = new Subject();
+    private tilesLoader: Subject<any> = new Subject();
 
     private options: any = {
         grid: true,
@@ -288,7 +289,7 @@ export class Tilemap {
                 this.draw();
             });
             this.camera.animationEndEvent.subscribe(() => {
-                this.showTiles.next(this.tilesFilter(this.camera.getTiles()));
+                this.sendShowTiles();
             });
             this.loadImage(() => {
                 this.createTiles();
@@ -296,9 +297,14 @@ export class Tilemap {
                 this.draw();
                 this.isReady = true;
                 this.ready.next();
-                this.showTiles.next(this.tilesFilter(this.camera.getTiles()));
+                this.sendShowTiles();
             });
         });
+    }
+
+    private sendShowTiles() :void {
+        this.showTiles.next(this.tilesFilter(this.camera.getTiles()));
+        this.tilesLoader.next({ isLoading: true });
     }
 
     private tilesFilter (tiles: any) :Array<any> {
@@ -315,6 +321,24 @@ export class Tilemap {
         return arr;
     }
 
+    private isAllLoaded() :boolean {
+        let i, result = true,
+            points = this.camera.getTiles(),
+            l = points.length;
+
+        for (i = 0; i < l; i++) {
+            let point = points[i],
+                tile = this.tiles[point.y][point.x];
+
+            if (tile.Status !== 2) {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+
     public get readyEvent() :Subject<any> {
         if (this.isReady) {
             setTimeout(() => { this.ready.next(); }, 50);
@@ -328,6 +352,10 @@ export class Tilemap {
 
     public get showTilesEvent() :Subject<any> {
         return this.showTiles;
+    }
+
+    public get tilesLoaderEvent() :Subject<any> {
+        return this.tilesLoader;
     }
 
     public moveTo(indexX: number, indexY: number) :void {
@@ -349,6 +377,8 @@ export class Tilemap {
             tile.addImage(this.additionalImages[options.additionalImage].image);
             this.draw();
         }
+
+        if (this.isAllLoaded()) { this.tilesLoader.next({ isLoading: false }); }
     }
 
     public resize () :void {
