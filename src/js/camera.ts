@@ -93,6 +93,9 @@ export class Camera {
         let dx = (this.x - this.dx) * this.step;
         let dy = (this.y - this.dy) * this.step;
 
+        dx = Math.floor(dx);
+        dy = Math.floor(dy);
+
         this.dx += dx;
         this.dy += dy;
 
