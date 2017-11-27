@@ -21,6 +21,8 @@ export class Tilemap {
     private startX: number = 0;
     private startY: number = 0;
 
+    private resizeHandler: EventListenerObject;
+
     private ready: Subject<any> = new Subject();
     private click: Subject<any> = new Subject();
     private showTiles: Subject<any> = new Subject();
@@ -44,6 +46,18 @@ export class Tilemap {
         if (this.context) {
             this.init(pathToConfig);
         }
+        this.resizeHandler = this.resize.bind(this);
+    }
+
+    private getCanvasSize() :void {
+        let parent = <HTMLElement> this.node.parentNode;
+        this.width = parent.offsetWidth;
+        this.height = parent.offsetHeight;
+    }
+
+    private setCanvasSize() :void {
+        this.node.width = this.width;
+        this.node.height = this.height;
     }
 
     private setEvents() :void {
@@ -112,6 +126,8 @@ export class Tilemap {
                 end(e.offsetX, e.offsetY);
             });
         }
+
+        window.addEventListener('resize', this.resizeHandler);
     }
 
     private draw() :void {
@@ -281,8 +297,8 @@ export class Tilemap {
             }
 
             let layer = this.mapConfig.layers[0];
-            this.width = this.node.offsetWidth;
-            this.height = this.node.offsetHeight;
+            this.getCanvasSize();
+            this.setCanvasSize();
             this.camera = new Camera(this.width, this.height, tileset.tilewidth * layer.width, tileset.tileheight * layer.height, tileset.tilewidth, tileset.tileheight);
             this.camera.setStartPosition(this.startX, this.startY);
             this.camera.drawEvent.subscribe(() => {
@@ -339,6 +355,13 @@ export class Tilemap {
         return result;
     }
 
+    private resize () :void {
+        this.getCanvasSize();
+        this.setCanvasSize();
+        this.camera.resize(this.width, this.height);
+        this.draw();
+    }
+
     public get readyEvent() :Subject<any> {
         if (this.isReady) {
             setTimeout(() => { this.ready.next(); }, 50);
@@ -381,9 +404,8 @@ export class Tilemap {
         if (this.isAllLoaded()) { this.tilesLoader.next({ isLoading: false }); }
     }
 
-    public resize () :void {
-        this.width = this.node.offsetWidth;
-        this.height = this.node.offsetHeight;
-        this.camera.resize(this.width, this.height);
+    public destroy() :void {
+        this.node.parentNode.removeChild(this.node);
+        window.removeEventListener('resize', this.resizeHandler);
     }
 }
