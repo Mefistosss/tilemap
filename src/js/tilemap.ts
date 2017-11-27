@@ -296,6 +296,7 @@ export class Tilemap {
                 this.draw();
                 this.isReady = true;
                 this.ready.next();
+                this.showTiles.next(this.tilesFilter(this.camera.getTiles()));
             });
         });
     }
