@@ -1,6 +1,6 @@
 {
-  "name": "tilemap",
-  "version": "1.0.0",
+  "name": "Anthill_tilemap",
+  "version": "1.0",
   "description": "\"Simple tilemap\"",
   "main": "webpack.config.js",
   "directories": {

@@ -1,5 +1,3 @@
-// import { Observable } from 'rxjs/Observable';
-// import { Observable } from 'rxjs';
 import { ajax } from 'rxjs/observable/dom/ajax';
 import { Subject } from 'rxjs/Subject';
 import { Tile } from './tile';

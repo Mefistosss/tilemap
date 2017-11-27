@@ -62,6 +62,7 @@ export class Camera {
                 arr.push(new Point(this.getIndex(_x, tw), this.getIndex(_y, th)));
             }
         }
+
         return arr;
     }
 
@@ -82,6 +83,7 @@ export class Camera {
     }
 
     private correctPosition(value :number, maxValue: number) :number {
+        value = Math.floor(value);
         value = this.correctMinPosition(value);
         if (value < maxValue) { value = maxValue; }
         return value;
