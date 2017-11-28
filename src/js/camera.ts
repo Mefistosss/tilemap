@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs/Subject';
 
-class Point {
+export class Point {
     public x: number;
     public y: number;
     constructor(x: number, y: number) {
