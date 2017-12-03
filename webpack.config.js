@@ -7,7 +7,7 @@ console.log(NODE_ENV);
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './src/js/tilemap.ts',
+    entry: './index.ts',
     output: {
         filename: 'tilemap.js',
         path: path.resolve(__dirname, 'dist'),

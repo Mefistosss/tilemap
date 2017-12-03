@@ -1,16 +1,22 @@
 {
-    "compilerOptions": {
-      "target": "es5",
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "lib": ["es2015", "dom"],
-      "noImplicitAny": true,
-      "suppressImplicitAnyIndexErrors": true,
-      "rootDir": "./src/js",
-      "outDir": "../typings",
-      "declaration": true
-    }
-  }
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es2015", "dom"],
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "outDir": "../",
+    "declaration": true
+  },
+  "include": [
+    "."
+  ],
+  "exclude": [
+      "node_modules",
+      "**/*.spec.ts"
+  ]
+}
