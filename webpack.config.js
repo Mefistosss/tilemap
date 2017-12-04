@@ -10,7 +10,8 @@ module.exports = {
     entry: './index.ts',
     output: {
         filename: 'tilemap.js',
-        path: path.resolve(__dirname, 'dist'),
+        // path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname),
         library: "Tilemap"
     },
     watch: NODE_ENV === 'development',
