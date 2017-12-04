@@ -2,7 +2,7 @@
   "name": "anthill_tilemap",
   "version": "1.0.3",
   "description": "\"Simple tilemap\"",
-  "main": "webpack.config.js",
+  "main": "index",
   "directories": {
     "test": "test"
   },
