@@ -1,9 +1,9 @@
 {
   "name": "anthill_tilemap",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "\"Simple tilemap\"",
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "directories": {
     "test": "test"
   },
